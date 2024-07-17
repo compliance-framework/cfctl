@@ -16,7 +16,7 @@ import (
 )
 
 type Config struct {
-    FilePath string
+	FilePath string
     URL      string
     Context  string
     Output   string

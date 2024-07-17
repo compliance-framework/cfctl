@@ -12,7 +12,8 @@ import (
 )
 
 type CreatePlan struct {
-	Title  string             `yaml:"title"`
+	Title    string `yaml:"title"`
+	FilePath string `yaml:"file-path"`
 }
 
 var CreatePlanVar     CreatePlan
@@ -21,7 +22,7 @@ func RunCreatePlan(cmd *cobra.Command, args []string) {
   var yamlData []byte
   var err error
 
-  fileName  := common.RunConfig.FilePath
+  fileName  := CreatePlanVar.FilePath
   planTitle := CreatePlanVar.Title
 
   // Check variables are correct

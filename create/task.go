@@ -17,6 +17,7 @@ type CreateTask struct {
 	Type        string             `yaml:"type"`
 	Schedule    string             `yaml:"schedule"`
 	PlanID      string             `yaml:"plan-id"`
+	FilePath    string            `yaml:"file-path"`
 }
 
 var CreateTaskVar     CreateTask
