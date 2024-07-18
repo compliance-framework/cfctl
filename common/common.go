@@ -2,7 +2,6 @@ package common
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -40,14 +39,15 @@ func ValidateYAMLDocument(doc string) error {
 	return yaml.Unmarshal([]byte(doc), &payload)
 }
 
-func PostYAMLDocument(doc string, url string) error {
+func PostYAMLDocument(doc string, url string) (string, error) {
 	// Create the request body
 	body := bytes.NewBuffer([]byte(doc))
 
 	// Create the request
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
-		return fmt.Errorf("error creating HTTP request: %w", err)
+		log.Printf("error creating HTTP request: %v", err)
+		return "", err
 	}
 
 	// Set the appropriate headers
@@ -62,19 +62,21 @@ func PostYAMLDocument(doc string, url string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("error making HTTP request: %w", err)
+		log.Printf("error making HTTP request: %w", err)
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	// Read and log the response
 	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("error reading response: %w", err)
+		log.Printf("error reading response: %w", err)
+		return "", err
 	}
 	log.Printf("Response Status: %s\n", resp.Status)
 	log.Printf("Response Body: %s\n", responseBody)
 
-	return nil
+	return string(responseBody), nil
 }
 
 func SanitiseContext() {
@@ -142,7 +144,7 @@ func RunValidate(cmd *cobra.Command, args []string) {
             if err != nil {
                 log.Printf("Invalid YAML document: %v", err)
             } else {
-                fmt.Println("Valid YAML document")
+                log.Println("Valid YAML document")
             }
         }
     }

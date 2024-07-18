@@ -1,7 +1,7 @@
 package command
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -76,14 +76,14 @@ func ParseCommand() {
 	createCmd.MarkFlagRequired("plan-id")
 
 	// Add subcommands to the create command
-	createCmd.AddCommand(createPlanCmd, createTaskCmd)
+	createCmd.AddCommand(createPlanCmd, createTaskCmd, createActivityCmd)
 
 	// Add subcommands to the root command
 	rootCmd.AddCommand(validateCmd, createCmd)
 
 	// Execute the root command
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
 }

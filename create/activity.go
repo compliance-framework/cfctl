@@ -23,7 +23,6 @@ package create
 //Must be a yaml file with configuration, and -p and -t flags for the ids
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -43,9 +42,10 @@ var CreateActivityVar     CreateActivity
 
 func RunCreateActivity(cmd *cobra.Command, args []string) {
 	var yamlData []byte
-	var err error
+	var err      error
+	var response string
 
-	fileName       := common.RunConfig.FilePath
+	fileName       := CreateActivityVar.FilePath
 	activityPlanID := CreateActivityVar.PlanID
 	activityTaskID := CreateActivityVar.TaskID
 
@@ -57,13 +57,14 @@ func RunCreateActivity(cmd *cobra.Command, args []string) {
 	}
 	// Check the yaml is valid vs domain.Activity
 	_, err = yaml.Marshal(&activity)
-    if err != nil {
-        log.Fatalf("Error marshalling to YAML: %v\n", err)
-    }
-	err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL + "plan/" + activityPlanID + "tasks" + activityTaskID + "/activities")
-    if err != nil {
-        fmt.Printf("Error posting: %v\n", err)
-        return
+	if err != nil {
+		log.Fatalf("Error marshalling to YAML: %v\n", err)
 	}
+	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL + "plan/" + activityPlanID + "/tasks/" + activityTaskID + "/activities")
+	if err != nil {
+		log.Printf("Error posting: %v\n", err)
+		return
+	}
+	log.Printf(response)
 }
 

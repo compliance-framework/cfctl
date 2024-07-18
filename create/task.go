@@ -1,7 +1,6 @@
 package create
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -24,7 +23,8 @@ var CreateTaskVar     CreateTask
 
 func RunCreateTask(cmd *cobra.Command, args []string) {
 	var yamlData []byte
-	var err error
+	var err      error
+	var response string
 
 	fileName        := common.RunConfig.FilePath
 	taskTitle       := CreateTaskVar.Title
@@ -49,25 +49,26 @@ func RunCreateTask(cmd *cobra.Command, args []string) {
 		}
 		// Check the yaml is valid vs domain.Task
 		_, err = yaml.Marshal(&task)
-    	if err != nil {
-    	    log.Fatalf("Error marshalling to YAML: %v\n", err)
-    	}
+		if err != nil {
+			log.Fatalf("Error marshalling to YAML: %v\n", err)
+		}
 	} else if taskTitle != "" {
 		task.Title       = taskTitle
 		task.Description = taskDescription
 		task.Schedule    = taskSchedule
 		task.Type        = domain.TaskType(taskType)
 		yamlData, err = yaml.Marshal(&task)
-    	if err != nil {
-    	    log.Fatalf("Error marshalling to YAML: %v\n", err)
-    	}
+		if err != nil {
+			log.Fatalf("Error marshalling to YAML: %v\n", err)
+		}
 	} else {
 		log.Fatalf("RunCreateTask should not get here")
 	}
-	err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL + "plan/" + taskPlanID + "/tasks")
-    if err != nil {
-        fmt.Printf("Error posting: %v\n", err)
-        return
+	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL + "plan/" + taskPlanID + "/tasks")
+	if err != nil {
+		log.Printf("Error posting: %v\n", err)
+		return
 	}
+	log.Printf(response)
 }
 
