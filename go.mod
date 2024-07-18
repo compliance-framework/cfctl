@@ -1,6 +1,6 @@
-module cfcli
+module cfctl
 
-go 1.22.0
+go 1.22.5
 
 require (
 	github.com/compliance-framework/configuration-service v0.0.0-20240714132041-fefcaee7766f

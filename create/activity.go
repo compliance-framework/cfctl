@@ -1,27 +1,5 @@
 package create
 
-//activity_id="$(curl -s localhost:8080/api/plan/"${plan_id}"/tasks/"${task_id}"/activities --header 'Content-Type: application/yaml' -d '
-//title: Check server is OK
-//description: This activity checks the server is OK
-//provider:
-//  name: ssh-cf-plugin
-//  image: ghcr.io/compliance-framework/ssh-cf-plugin
-//  tag: seed
-//  configuration:
-//    yaml: |
-//      username: "'${CF_SSH_USERNAME}'"
-//      password: "'${CF_SSH_PASSWORD}'"
-//      host: "'${CF_SSH_HOST}'"
-//      command: "'"${CF_SSH_COMMAND}"'"
-//      port: "'${CF_SSH_PORT:-2227}'"
-//subjects:
-//  title: Server
-//  description: "Server: '${CF_SSH_HOST}'"
-//  labels: {}
-//' | jq -r '.id')"
-//
-//Must be a yaml file with configuration, and -p and -t flags for the ids
-
 import (
 	"fmt"
 	"io/ioutil"
@@ -30,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"github.com/compliance-framework/configuration-service/domain"
-	"cfcli/common"
+	"cfctl/common"
 )
 
 type CreateActivity struct {

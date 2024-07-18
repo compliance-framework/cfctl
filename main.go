@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cfcli/command"
+	"cfctl/command"
 )
 
 func main() {

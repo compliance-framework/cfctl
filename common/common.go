@@ -34,11 +34,6 @@ var RunConfig      Config
 var CLIConfigVar   CLIConfig
 var CurrentContext Context
 
-func ValidateYAMLDocument(doc string) error {
-	var payload map[string]interface{}
-	return yaml.Unmarshal([]byte(doc), &payload)
-}
-
 func PostYAMLDocument(doc string, url string) (string, error) {
 	// Create the request body
 	body := bytes.NewBuffer([]byte(doc))
@@ -94,7 +89,7 @@ func ReadConfigFile() {
         if err != nil {
 			os.Exit(1)
         }
-        configFile = filepath.Join(homeDir, ".cfcli", "config")
+        configFile = filepath.Join(homeDir, ".cfctl", "config")
     }
 
     fileContent, err := ioutil.ReadFile(configFile)
@@ -129,27 +124,4 @@ func ApplyContext() {
     }
 
     SanitiseContext()
-}
-
-func RunValidate(cmd *cobra.Command, args []string) {
-    fileContent, err := ioutil.ReadFile(RunConfig.FilePath)
-    if err != nil {
-        fmt.Printf("error reading file: %v", err)
-		os.Exit(1)
-    }
-
-    yamlDocuments := strings.Split(string(fileContent), "---")
-
-    for _, doc := range yamlDocuments {
-        doc = strings.TrimSpace(doc)
-        if doc != "" {
-            err := ValidateYAMLDocument(doc)
-            if err != nil {
-                fmt.Printf("Invalid YAML document: %v", err)
-				os.Exit(1)
-            } else {
-                fmt.Println("Valid YAML document")
-            }
-        }
-    }
 }
