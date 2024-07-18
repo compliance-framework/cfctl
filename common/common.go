@@ -3,11 +3,11 @@ package common
 import (
 	"bytes"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"net/http"
     "strings"
+	"fmt"
 
     "github.com/spf13/cobra"
 
@@ -46,35 +46,35 @@ func PostYAMLDocument(doc string, url string) (string, error) {
 	// Create the request
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
-		log.Printf("error creating HTTP request: %v", err)
+		fmt.Printf("error creating HTTP request: %v", err)
 		return "", err
 	}
 
 	// Set the appropriate headers
 	req.Header.Set("Content-Type", "application/yaml")
 
-	// Log the request details
-	log.Printf("Sending %s\n", url)
-	log.Printf("Headers: %v\n", req.Header)
-	log.Printf("Body: %s\n", doc)
+	// fmt the request details
+	//fmt.Printf("Sending %s\n", url)
+	//fmt.Printf("Headers: %v\n", req.Header)
+	//fmt.Printf("Body: %s\n", doc)
 
 	// Create an HTTP client and send the request
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("error making HTTP request: %w", err)
-		return "", err
+		fmt.Printf("error making HTTP request: %w", err)
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
-	// Read and log the response
+	// Read and fmt the response
 	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("error reading response: %w", err)
-		return "", err
+		fmt.Printf("error reading response: %w", err)
+		os.Exit(1)
 	}
-	log.Printf("Response Status: %s\n", resp.Status)
-	log.Printf("Response Body: %s\n", responseBody)
+	//fmt.Printf("Response Status: %s\n", resp.Status)
+	//fmt.Printf("Response Body: %s\n", responseBody)
 
 	return string(responseBody), nil
 }
@@ -92,15 +92,15 @@ func ReadConfigFile() {
     if configFile == "" {
         homeDir, err := os.UserHomeDir()
         if err != nil {
-            log.Fatalf("error getting home directory: %v", err)
+			os.Exit(1)
         }
         configFile = filepath.Join(homeDir, ".cfcli", "config")
     }
 
     fileContent, err := ioutil.ReadFile(configFile)
     if err != nil {
-        log.Printf("error reading config file: %v", err)
-        log.Fatalf(`Create a file, here is a simple example which works for development of CF:
+        fmt.Printf("error reading config file: %v", err)
+        fmt.Printf(`Create a file, here is a simple example which works for development of CF:
 
 default: dev
 contexts:
@@ -110,7 +110,8 @@ contexts:
 
     err = yaml.Unmarshal(fileContent, &CLIConfigVar)
     if err != nil {
-        log.Fatalf("error unmarshaling config file: %v", err)
+        fmt.Printf("error unmarshaling config file: %v", err)
+		os.Exit(1)
     }
 }
 
@@ -123,7 +124,8 @@ func ApplyContext() {
     var exists bool
     CurrentContext, exists = CLIConfigVar.Contexts[contextName]
     if !exists {
-        log.Fatalf("context %s not found in config file", contextName)
+        fmt.Printf("context %s not found in config file", contextName)
+		os.Exit(1)
     }
 
     SanitiseContext()
@@ -132,7 +134,8 @@ func ApplyContext() {
 func RunValidate(cmd *cobra.Command, args []string) {
     fileContent, err := ioutil.ReadFile(RunConfig.FilePath)
     if err != nil {
-        log.Fatalf("error reading file: %v", err)
+        fmt.Printf("error reading file: %v", err)
+		os.Exit(1)
     }
 
     yamlDocuments := strings.Split(string(fileContent), "---")
@@ -142,9 +145,10 @@ func RunValidate(cmd *cobra.Command, args []string) {
         if doc != "" {
             err := ValidateYAMLDocument(doc)
             if err != nil {
-                log.Printf("Invalid YAML document: %v", err)
+                fmt.Printf("Invalid YAML document: %v", err)
+				os.Exit(1)
             } else {
-                log.Println("Valid YAML document")
+                fmt.Println("Valid YAML document")
             }
         }
     }

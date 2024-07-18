@@ -23,8 +23,9 @@ package create
 //Must be a yaml file with configuration, and -p and -t flags for the ids
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -53,18 +54,20 @@ func RunCreateActivity(cmd *cobra.Command, args []string) {
 	activity := domain.Activity{}
 	yamlData, err = ioutil.ReadFile(fileName)
 	if err != nil {
-		log.Fatalf("error reading file: %v", err)
+		fmt.Printf("error reading file: %v", err)
+		os.Exit(1)
 	}
 	// Check the yaml is valid vs domain.Activity
 	_, err = yaml.Marshal(&activity)
 	if err != nil {
-		log.Fatalf("Error marshalling to YAML: %v\n", err)
+		fmt.Printf("Error marshalling to YAML: %v\n", err)
+		os.Exit(1)
 	}
 	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL + "plan/" + activityPlanID + "/tasks/" + activityTaskID + "/activities")
 	if err != nil {
-		log.Printf("Error posting: %v\n", err)
-		return
+		fmt.Printf("Error posting: %v\n", err)
+		os.Exit(1)
 	}
-	log.Printf(response)
+	fmt.Printf(response)
 }
 

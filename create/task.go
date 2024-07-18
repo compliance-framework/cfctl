@@ -2,7 +2,8 @@ package create
 
 import (
 	"io/ioutil"
-	"log"
+	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -36,21 +37,25 @@ func RunCreateTask(cmd *cobra.Command, args []string) {
 	// Check variables are correct
 	// one of title or filepath must be non-empty, and one of them must be empty
 	if taskTitle == "" && fileName == "" {
-		log.Fatalf("title, description, schedule and planid, or yaml filename must be set")
+		fmt.Printf("title, description, schedule and planid, or yaml filename must be set")
+		os.Exit(1)
 	} else if (taskTitle != "" || taskDescription != "" || taskSchedule != "" || taskPlanID != "") && fileName != "" {
-		log.Fatalf("either: title, description, schedule and planid should all be unset; or yaml filename should be unset")
+		fmt.Printf("either: title, description, schedule and planid should all be unset; or yaml filename should be unset")
+		os.Exit(1)
 	}
 	// Process the command
 	task := domain.Task{}
 	if fileName != "" {
 		yamlData, err = ioutil.ReadFile(common.RunConfig.FilePath)
 		if err != nil {
-			log.Fatalf("error reading file: %v", err)
+			fmt.Printf("error reading file: %v", err)
+			os.Exit(1)
 		}
 		// Check the yaml is valid vs domain.Task
 		_, err = yaml.Marshal(&task)
 		if err != nil {
-			log.Fatalf("Error marshalling to YAML: %v\n", err)
+			fmt.Printf("Error marshalling to YAML: %v\n", err)
+			os.Exit(1)
 		}
 	} else if taskTitle != "" {
 		task.Title       = taskTitle
@@ -59,16 +64,18 @@ func RunCreateTask(cmd *cobra.Command, args []string) {
 		task.Type        = domain.TaskType(taskType)
 		yamlData, err = yaml.Marshal(&task)
 		if err != nil {
-			log.Fatalf("Error marshalling to YAML: %v\n", err)
+			fmt.Printf("Error marshalling to YAML: %v\n", err)
+			os.Exit(1)
 		}
 	} else {
-		log.Fatalf("RunCreateTask should not get here")
+		fmt.Printf("RunCreateTask should not get here")
+		os.Exit(1)
 	}
 	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL + "plan/" + taskPlanID + "/tasks")
 	if err != nil {
-		log.Printf("Error posting: %v\n", err)
-		return
+		fmt.Printf("Error posting: %v\n", err)
+		os.Exit(1)
 	}
-	log.Printf(response)
+	fmt.Printf(response)
 }
 
