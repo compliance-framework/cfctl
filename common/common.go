@@ -6,10 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"net/http"
-    "strings"
 	"fmt"
-
-    "github.com/spf13/cobra"
 
 	"gopkg.in/yaml.v2"
 )
@@ -72,6 +69,32 @@ func PostYAMLDocument(doc string, url string) (string, error) {
 	//fmt.Printf("Response Body: %s\n", responseBody)
 
 	return string(responseBody), nil
+}
+
+func PutURL(url string) (string, error) {
+    req, err := http.NewRequest("PUT", url, nil)
+    if err != nil {
+        fmt.Printf("Error creating request: %v\n", err)
+        os.Exit(1)
+    }
+
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        fmt.Printf("Error making request: %v\n", err)
+        os.Exit(1)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        fmt.Printf("Error: received status code %d\n", resp.StatusCode)
+        os.Exit(1)
+    }
+
+    fmt.Println("Request was successful.")
+	return "200 OK", nil
 }
 
 func SanitiseContext() {
