@@ -13,7 +13,7 @@ import (
 
 func ParseCommand() {
 	var rootCmd = &cobra.Command{
-		Use:   "cfcli",
+		Use:   "cfctl",
 		Short: "CLI for Compliance Framework (CF)",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			common.ReadConfigFile()
