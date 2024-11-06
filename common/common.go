@@ -2,11 +2,11 @@ package common
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
-	"net/http"
-	"fmt"
 
 	"gopkg.in/yaml.v2"
 )
@@ -123,7 +123,7 @@ func ReadConfigFile() {
 default: dev
 contexts:
   dev:
-    url: http://localhost:8080`)
+    url: http://localhost:8080/api`)
     }
 
     err = yaml.Unmarshal(fileContent, &CLIConfigVar)
