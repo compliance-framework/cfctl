@@ -7,10 +7,6 @@ A command line interface to Compliance Framework
 
 ### Mac
 ```bash
-brew install coreutils go jq
-```
-
-```bash
 go build -o cfctl
 sudo mv cfctl /usr/local/bin/cfctl
 mkdir ~/.cfctl
