@@ -53,7 +53,7 @@ func AddContext(cmd *cobra.Command, args []string) {
 		inputUrl = defaultUrl
 	}
 
-	ConfigFileContents = createContext(ConfigFileContents, inputUrl, CreateConfigVar.Context)
+	createContext(&ConfigFileContents, inputUrl, CreateConfigVar.Context)
 
 	d, err := yaml.Marshal(ConfigFileContents)
 	if err != nil {
@@ -137,7 +137,7 @@ func getUserInput(prompt string) (string, error) {
 }
 
 // Modifies or adds to the existing config if it exists, otherwise creates a new one
-func createContext(existingConfig common.CLIConfig, inputUrl string, contextName string) common.CLIConfig {
+func createContext(existingConfig *common.CLIConfig, inputUrl string, contextName string) {
 	createContext := common.Context{URL: inputUrl}
 	if len(existingConfig.Contexts) == 0 {
 		fmt.Println("No context found - creating new.")
@@ -147,5 +147,4 @@ func createContext(existingConfig common.CLIConfig, inputUrl string, contextName
 	} else {
 		existingConfig.Contexts[contextName] = createContext
 	}
-	return existingConfig
 }
