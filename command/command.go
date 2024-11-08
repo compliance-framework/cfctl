@@ -17,7 +17,7 @@ func ParseCommand() {
 		Use:   "cfctl",
 		Short: "CLI for Compliance Framework (CF)",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			// If we're running a config command, ignore validating it
+			// If we're running a config command, ignore validating the config
 			if !(cmd.HasParent() && cmd.Parent().Name() == "config") {
 				common.ReadConfigFile()
 				common.ApplyContext()
@@ -46,19 +46,19 @@ func ParseCommand() {
 		Run:   create.RunCreatePlan,
 	}
 	createPlanCmd.Flags().StringVarP(&create.CreatePlanVar.FilePath, "file", "f", "", "YAML file to process")
-	createPlanCmd.Flags().StringVarP(&create.CreatePlanVar.Title, 	 "title", "t", "", "Title of Plan")
+	createPlanCmd.Flags().StringVarP(&create.CreatePlanVar.Title, "title", "t", "", "Title of Plan")
 
 	var createTaskCmd = &cobra.Command{
 		Use:   "task",
 		Short: "Create a CF task",
 		Run:   create.RunCreateTask,
 	}
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.FilePath, 	"file", "f", "", "YAML file to process")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Title, 		"title", "t", "", "Title of Task")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.FilePath, "file", "f", "", "YAML file to process")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Title, "title", "t", "", "Title of Task")
 	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Description, "description", "d", "", "Description of Task")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Schedule, 	"schedule", "s", "", "Schedule of Task (cron format)")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.PlanID, 		"plan-id", "p", "", "Plan ID")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Type,   		"type", "y", "action", "Task type (default: action)")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Schedule, "schedule", "s", "", "Schedule of Task (cron format)")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.PlanID, "plan-id", "p", "", "Plan ID")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Type, "type", "y", "action", "Task type (default: action)")
 
 	var createActivityCmd = &cobra.Command{
 		Use:   "activity",
@@ -66,8 +66,8 @@ func ParseCommand() {
 		Run:   create.RunCreateActivity,
 	}
 	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.FilePath, "file", "f", "", "YAML file to process configuration of plugin")
-	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.TaskID,   "task-id", "t", "", "Title of Task")
-	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.PlanID,   "plan-id", "p", "", "Description of Task")
+	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.TaskID, "task-id", "t", "", "Title of Task")
+	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.PlanID, "plan-id", "p", "", "Description of Task")
 	createCmd.MarkFlagRequired("file")
 	createCmd.MarkFlagRequired("task-id")
 	createCmd.MarkFlagRequired("plan-id")
@@ -86,11 +86,10 @@ func ParseCommand() {
 	}
 
 	// Apply any global overrides on the command line to non-config commands
-	nonConfigCommands := []cobra.Command{*activateCmd, *createCmd, *validateCmd}
+	nonConfigCommands := []*cobra.Command{activateCmd, createCmd, validateCmd}
 	for _, command := range nonConfigCommands {
 		command.PersistentFlags().StringVarP(&common.RunConfig.Context, "context", "c", "", "Context to use from config file")
-		command.PersistentFlags().StringVarP(&common.RunConfig.URL, 	"url", "u", "", "Endpoint URL to send the YAML payloads")
-		command.PersistentFlags().StringVarP(&common.RunConfig.Output,  "output", "o", "yaml", "Output format (TODO), defaults to json")
+		command.PersistentFlags().StringVarP(&common.RunConfig.Output, "output", "o", "yaml", "Output format (TODO), defaults to json")
 	}
 
 	// config
@@ -107,10 +106,18 @@ func ParseCommand() {
 	}
 	createConfigContextCmd.Flags().StringVarP(&create.CreateConfigVar.Context, "context-name", "c", "", "Context name to create a configuration for.")
 	createConfigContextCmd.MarkFlagRequired("context-name")
+
+	var getConfigContextCmd = &cobra.Command{
+		Use:   "get",
+		Short: "Get config values",
+		Run:   create.GetContext,
+	}
+	getConfigContextCmd.Flags().StringVarP(&create.CreateConfigVar.Context, "context-name", "c", "", "Context name to get a configuration for.")
+
 	// Add subcommands to the create command
 	createCmd.AddCommand(createPlanCmd, createTaskCmd, createActivityCmd)
 	activateCmd.AddCommand(activatePlanCmd)
-	configCmd.AddCommand(createConfigContextCmd)
+	configCmd.AddCommand(createConfigContextCmd, getConfigContextCmd)
 
 	// Add subcommands to the root command
 	rootCmd.AddCommand(validateCmd, createCmd, activateCmd, configCmd)

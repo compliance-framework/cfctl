@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
@@ -65,6 +66,46 @@ func AddContext(cmd *cobra.Command, args []string) {
 	f.Seek(0, 0)
 	f.Write(d)
 	fmt.Printf("Successfully wrote new context for '%v'\n", CreateConfigVar.Context)
+}
+
+// Output the config, by context if specified
+func GetContext(cmd *cobra.Command, args []string) {
+
+	configFile, err := common.GetConfigFilePath()
+	if err != nil {
+		os.Exit(1)
+	}
+
+	// Open file for reading
+	f, err := os.OpenFile(configFile, os.O_RDONLY, 0644)
+	if err != nil {
+		fmt.Println(fmt.Errorf("error opening config file: %w", err))
+		if strings.Contains(err.Error(), "no such file") {
+			fmt.Println("Please create the config file via 'cfctl config create' first.")
+		}
+		os.Exit(1)
+	}
+	defer f.Close()
+	content, err := io.ReadAll(f)
+	if err != nil {
+		os.Exit(1)
+	}
+	if CreateConfigVar.Context != "" {
+		var ConfigFileContents common.CLIConfig
+		err = yaml.Unmarshal(content, &ConfigFileContents)
+		if err != nil {
+			os.Exit(1)
+		}
+		contentAtContext := ConfigFileContents.Contexts[CreateConfigVar.Context]
+		content, err = yaml.Marshal(contentAtContext)
+		if err != nil {
+			os.Exit(1)
+		}
+		fmt.Printf("Config of context '%v':\n%v", CreateConfigVar.Context, string(content))
+	} else {
+		fmt.Printf("Config file:\n%v", string(content))
+	}
+
 }
 
 func GetUserInputDefaultContext(currentDefault string) string {
