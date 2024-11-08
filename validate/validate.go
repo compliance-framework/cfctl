@@ -3,7 +3,6 @@ package validate
 import (
 	"fmt"
 	"os"
-
 	"strings"
 
 	"github.com/spf13/cobra"

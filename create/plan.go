@@ -2,7 +2,6 @@ package create
 
 import (
 	"fmt"
-
 	"os"
 
 	"cfctl/common"
