@@ -24,7 +24,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: "${{env.go_version}}"
+          go-version: "${{env.GO_VERSION}}"
 
       
       - name: Cache Go modules
