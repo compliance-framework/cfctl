@@ -139,12 +139,9 @@ func getUserInput(prompt string) (string, error) {
 // createContext: Modifies or adds to the existing config if it exists, otherwise creates a new one
 func createContext(existingConfig *common.CLIConfig, inputUrl string, contextName string) {
 	createContext := common.Context{URL: inputUrl}
-	if len(existingConfig.Contexts) == 0 {
+	if existingConfig.Contexts == nil {
 		fmt.Println("No context found - creating new.")
-		m := make(map[string]common.Context)
-		m[contextName] = createContext
-		existingConfig.Contexts = m
-	} else {
-		existingConfig.Contexts[contextName] = createContext
+		existingConfig.Contexts = make(map[string]common.Context)
 	}
+	existingConfig.Contexts[contextName] = createContext
 }
