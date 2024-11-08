@@ -4,11 +4,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/spf13/cobra"
-	"cfctl/create"
-	"cfctl/common"
-	"cfctl/validate"
 	"cfctl/activate"
+	"cfctl/common"
+	"cfctl/create"
+	"cfctl/validate"
+
+	"github.com/spf13/cobra"
 )
 
 func ParseCommand() {
@@ -46,7 +47,7 @@ func ParseCommand() {
 		Short: "Create a CF plan",
 		Run:   create.RunCreatePlan,
 	}
-	createPlanCmd.Flags().StringVarP(&create.CreatePlanVar.FilePath,  "file",  "f", "", "YAML file to process")
+	createPlanCmd.Flags().StringVarP(&create.CreatePlanVar.FilePath, "file", "f", "", "YAML file to process")
 	createPlanCmd.Flags().StringVarP(&create.CreatePlanVar.Title, "title", "t", "", "Title of Plan")
 
 	var createTaskCmd = &cobra.Command{
@@ -54,21 +55,21 @@ func ParseCommand() {
 		Short: "Create a CF task",
 		Run:   create.RunCreateTask,
 	}
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.FilePath,    "file",        "f", "",       "YAML file to process")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Title,       "title",       "t", "",       "Title of Task")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Description, "description", "d", "",       "Description of Task")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Schedule,    "schedule",    "s", "",       "Schedule of Task (cron format)")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.PlanID,      "plan-id",     "p", "",       "Plan ID")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Type,        "type",        "y", "action", "Task type (default: action)")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.FilePath, "file", "f", "", "YAML file to process")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Title, "title", "t", "", "Title of Task")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Description, "description", "d", "", "Description of Task")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Schedule, "schedule", "s", "", "Schedule of Task (cron format)")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.PlanID, "plan-id", "p", "", "Plan ID")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Type, "type", "y", "action", "Task type (default: action)")
 
 	var createActivityCmd = &cobra.Command{
 		Use:   "activity",
 		Short: "Create a CF task",
 		Run:   create.RunCreateActivity,
 	}
-	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.FilePath, "file",    "f", "", "YAML file to process configuration of plugin")
-	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.TaskID,   "task-id", "t", "", "Title of Task")
-	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.PlanID,   "plan-id", "p", "", "Description of Task")
+	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.FilePath, "file", "f", "", "YAML file to process configuration of plugin")
+	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.TaskID, "task-id", "t", "", "Title of Task")
+	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.PlanID, "plan-id", "p", "", "Description of Task")
 	createCmd.MarkFlagRequired("file")
 	createCmd.MarkFlagRequired("task-id")
 	createCmd.MarkFlagRequired("plan-id")

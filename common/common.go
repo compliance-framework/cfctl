@@ -3,7 +3,7 @@ package common
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,22 +13,22 @@ import (
 
 type Config struct {
 	FilePath string
-    URL      string
-    Context  string
-    Output   string
+	URL      string
+	Context  string
+	Output   string
 }
 
 type CLIConfig struct {
-    Default  string             `yaml:"default"`
-    Contexts map[string]Context `yaml:"contexts"`
+	Default  string             `yaml:"default"`
+	Contexts map[string]Context `yaml:"contexts"`
 }
 
 type Context struct {
-    URL      string `yaml:"url"`
+	URL string `yaml:"url"`
 }
 
-var RunConfig      Config
-var CLIConfigVar   CLIConfig
+var RunConfig Config
+var CLIConfigVar CLIConfig
 var CurrentContext Context
 
 func PostYAMLDocument(doc string, url string) (string, error) {
@@ -60,7 +60,7 @@ func PostYAMLDocument(doc string, url string) (string, error) {
 	defer resp.Body.Close()
 
 	// Read and fmt the response
-	responseBody, err := ioutil.ReadAll(resp.Body)
+	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("error reading response: %w", err)
 		os.Exit(1)
@@ -72,79 +72,79 @@ func PostYAMLDocument(doc string, url string) (string, error) {
 }
 
 func PutURL(url string) (string, error) {
-    req, err := http.NewRequest("PUT", url, nil)
-    if err != nil {
-        fmt.Printf("Error creating request: %v\n", err)
-        os.Exit(1)
-    }
+	req, err := http.NewRequest("PUT", url, nil)
+	if err != nil {
+		fmt.Printf("Error creating request: %v\n", err)
+		os.Exit(1)
+	}
 
-    req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        fmt.Printf("Error making request: %v\n", err)
-        os.Exit(1)
-    }
-    defer resp.Body.Close()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("Error making request: %v\n", err)
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
 
-    if resp.StatusCode != http.StatusOK {
-        fmt.Printf("Error: received status code %d\n", resp.StatusCode)
-        os.Exit(1)
-    }
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("Error: received status code %d\n", resp.StatusCode)
+		os.Exit(1)
+	}
 
-    fmt.Println("Request was successful.")
+	fmt.Println("Request was successful.")
 	return "200 OK", nil
 }
 
 func SanitiseContext() {
-    url := string(CurrentContext.URL)
+	url := string(CurrentContext.URL)
 
-    if len(url) > 0 && url[len(url)-1] != '/' {
-        CurrentContext.URL += "/"
-    }
+	if len(url) > 0 && url[len(url)-1] != '/' {
+		CurrentContext.URL += "/"
+	}
 }
 
 func ReadConfigFile() {
-    configFile := os.Getenv("CFCONF")
-    if configFile == "" {
-        homeDir, err := os.UserHomeDir()
-        if err != nil {
+	configFile := os.Getenv("CFCONF")
+	if configFile == "" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
 			os.Exit(1)
-        }
-        configFile = filepath.Join(homeDir, ".cfctl", "config")
-    }
+		}
+		configFile = filepath.Join(homeDir, ".cfctl", "config")
+	}
 
-    fileContent, err := ioutil.ReadFile(configFile)
-    if err != nil {
-        fmt.Printf("error reading config file: %v", err)
-        fmt.Printf(`Create a file, here is a simple example which works for development of CF:
+	fileContent, err := os.ReadFile(configFile)
+	if err != nil {
+		fmt.Printf("error reading config file: %v", err)
+		fmt.Printf(`Create a file, here is a simple example which works for development of CF:
 
 default: dev
 contexts:
   dev:
     url: http://localhost:8080/api`)
-    }
+	}
 
-    err = yaml.Unmarshal(fileContent, &CLIConfigVar)
-    if err != nil {
-        fmt.Printf("error unmarshaling config file: %v", err)
+	err = yaml.Unmarshal(fileContent, &CLIConfigVar)
+	if err != nil {
+		fmt.Printf("error unmarshaling config file: %v", err)
 		os.Exit(1)
-    }
+	}
 }
 
 func ApplyContext() {
-    contextName := RunConfig.Context
-    if contextName == "" {
-        contextName = CLIConfigVar.Default
-    }
+	contextName := RunConfig.Context
+	if contextName == "" {
+		contextName = CLIConfigVar.Default
+	}
 
-    var exists bool
-    CurrentContext, exists = CLIConfigVar.Contexts[contextName]
-    if !exists {
-        fmt.Printf("context %s not found in config file", contextName)
+	var exists bool
+	CurrentContext, exists = CLIConfigVar.Contexts[contextName]
+	if !exists {
+		fmt.Printf("context %s not found in config file", contextName)
 		os.Exit(1)
-    }
+	}
 
-    SanitiseContext()
+	SanitiseContext()
 }
