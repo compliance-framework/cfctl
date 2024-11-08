@@ -99,7 +99,7 @@ func GetUserInput(prompt string) (string, error) {
 func CreateContext(existingConfig common.CLIConfig, inputUrl string, contextName string) common.CLIConfig {
 	createContext := common.Context{URL: inputUrl}
 	if len(existingConfig.Contexts) == 0 {
-		fmt.Println("No context file found - creating new.")
+		fmt.Println("No context found - creating new.")
 		m := make(map[string]common.Context)
 		m[contextName] = createContext
 		existingConfig.Contexts = m
