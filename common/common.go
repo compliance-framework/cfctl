@@ -38,7 +38,7 @@ func PostYAMLDocument(doc string, url string) (string, error) {
 	// Create the request
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
-		fmt.Printf("error creating HTTP request: %v", err)
+		fmt.Print(fmt.Errorf("error creating HTTP request: %w", err))
 		return "", err
 	}
 
@@ -54,7 +54,7 @@ func PostYAMLDocument(doc string, url string) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("error making HTTP request: %w", err)
+		fmt.Print(fmt.Errorf("error making HTTP request: %w", err))
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
@@ -62,7 +62,7 @@ func PostYAMLDocument(doc string, url string) (string, error) {
 	// Read and fmt the response
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("error reading response: %w", err)
+		fmt.Print(fmt.Errorf("error reading response: %w", err))
 		os.Exit(1)
 	}
 	//fmt.Printf("Response Status: %s\n", resp.Status)
@@ -74,7 +74,7 @@ func PostYAMLDocument(doc string, url string) (string, error) {
 func PutURL(url string) (string, error) {
 	req, err := http.NewRequest("PUT", url, nil)
 	if err != nil {
-		fmt.Printf("Error creating request: %v\n", err)
+		fmt.Print(fmt.Errorf("error creating request: %v", err))
 		os.Exit(1)
 	}
 
@@ -83,13 +83,13 @@ func PutURL(url string) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("Error making request: %v\n", err)
+		fmt.Print(fmt.Errorf("error making request: %v", err))
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("Error: received status code %d\n", resp.StatusCode)
+		fmt.Print(fmt.Errorf("error: received status code %d", resp.StatusCode))
 		os.Exit(1)
 	}
 
@@ -104,31 +104,38 @@ func SanitiseContext() {
 		CurrentContext.URL += "/"
 	}
 }
-
-func ReadConfigFile() {
+func GetConfigFilePath() (string, error) {
 	configFile := os.Getenv("CFCONF")
 	if configFile == "" {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
-			os.Exit(1)
+			return "", err
 		}
 		configFile = filepath.Join(homeDir, ".cfctl", "config")
 	}
-
+	return configFile, nil
+}
+func ReadConfigFile() {
+	configFile, err := GetConfigFilePath()
+	if err != nil {
+		os.Exit(1)
+	}
 	fileContent, err := os.ReadFile(configFile)
 	if err != nil {
-		fmt.Printf("error reading config file: %v", err)
-		fmt.Printf(`Create a file, here is a simple example which works for development of CF:
+		fmt.Print(fmt.Errorf("error reading config file: %w", err))
+		fmt.Println(`Create a file, or run 'cfctl config create -c [context]'. Here is a simple example which works for development of CF:
 
 default: dev
 contexts:
   dev:
-    url: http://localhost:8080/api`)
+    url: http://localhost:8080/api
+	`)
+		os.Exit(1)
 	}
 
 	err = yaml.Unmarshal(fileContent, &CLIConfigVar)
 	if err != nil {
-		fmt.Printf("error unmarshaling config file: %v", err)
+		fmt.Print(fmt.Errorf("error unmarshaling config file: %w", err))
 		os.Exit(1)
 	}
 }
@@ -142,7 +149,7 @@ func ApplyContext() {
 	var exists bool
 	CurrentContext, exists = CLIConfigVar.Contexts[contextName]
 	if !exists {
-		fmt.Printf("context %s not found in config file", contextName)
+		fmt.Print(fmt.Errorf("context '%v' not found in config file", contextName))
 		os.Exit(1)
 	}
 

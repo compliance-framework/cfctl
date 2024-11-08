@@ -58,7 +58,7 @@ func RunCreatePlan(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 	} else {
-		fmt.Printf("RunCreatePlan should not get here")
+		fmt.Print("RunCreatePlan should not get here")
 		os.Exit(1)
 	}
 	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL+"plan")

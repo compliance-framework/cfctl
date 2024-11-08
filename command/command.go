@@ -17,15 +17,13 @@ func ParseCommand() {
 		Use:   "cfctl",
 		Short: "CLI for Compliance Framework (CF)",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			common.ReadConfigFile()
-			common.ApplyContext()
+			// If we're running a config command, ignore validating the config
+			if !(cmd.HasParent() && cmd.Parent().Name() == "config") {
+				common.ReadConfigFile()
+				common.ApplyContext()
+			}
 		},
 	}
-
-	// Now the config file has been read in, apply any global overrides on the command line
-	rootCmd.PersistentFlags().StringVarP(&common.RunConfig.Context, "context", "c", "", "Context to use from config file")
-	rootCmd.PersistentFlags().StringVarP(&common.RunConfig.URL, "url", "u", "", "Endpoint URL to send the YAML payloads")
-	rootCmd.PersistentFlags().StringVarP(&common.RunConfig.Output, "output", "o", "yaml", "Output format (TODO), defaults to json")
 
 	// validate
 	var validateCmd = &cobra.Command{
@@ -87,12 +85,42 @@ func ParseCommand() {
 		Run:   activate.RunActivatePlan,
 	}
 
+	// Apply any global overrides on the command line to non-config commands
+	nonConfigCommands := []*cobra.Command{activateCmd, createCmd, validateCmd}
+	for _, command := range nonConfigCommands {
+		command.PersistentFlags().StringVarP(&common.RunConfig.Context, "context", "c", "", "Context to use from config file")
+		command.PersistentFlags().StringVarP(&common.RunConfig.Output, "output", "o", "yaml", "Output format (TODO), defaults to json")
+	}
+
+	// config
+
+	var configCmd = &cobra.Command{
+		Use:   "config",
+		Short: "Configure cfctl",
+	}
+
+	var createConfigContextCmd = &cobra.Command{
+		Use:   "create",
+		Short: "Set config values",
+		Run:   create.AddContext,
+	}
+	createConfigContextCmd.Flags().StringVarP(&create.CreateConfigVar.Context, "context-name", "c", "", "Context name to create a configuration for.")
+	createConfigContextCmd.MarkFlagRequired("context-name")
+
+	var getConfigContextCmd = &cobra.Command{
+		Use:   "get",
+		Short: "Get config values",
+		Run:   create.GetContext,
+	}
+	getConfigContextCmd.Flags().StringVarP(&create.CreateConfigVar.Context, "context-name", "c", "", "Context name to get a configuration for.")
+
 	// Add subcommands to the create command
 	createCmd.AddCommand(createPlanCmd, createTaskCmd, createActivityCmd)
 	activateCmd.AddCommand(activatePlanCmd)
+	configCmd.AddCommand(createConfigContextCmd, getConfigContextCmd)
 
 	// Add subcommands to the root command
-	rootCmd.AddCommand(validateCmd, createCmd, activateCmd)
+	rootCmd.AddCommand(validateCmd, createCmd, activateCmd, configCmd)
 
 	// Execute the root command
 	if err := rootCmd.Execute(); err != nil {
