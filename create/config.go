@@ -18,7 +18,7 @@ type CreateConfig struct {
 
 var CreateConfigVar CreateConfig
 
-// Create context given by argument with user input
+// AddContext: Create context given by argument with user input
 func AddContext(cmd *cobra.Command, args []string) {
 	var ConfigFileContents common.CLIConfig
 
@@ -127,7 +127,7 @@ func getUserInputDefaultContext(currentDefault string) string {
 	return inputContext
 }
 
-// Prompts user for input and gets value delimited, and exclusive of, newline
+// getUserInput: Prompts user for input and gets value delimited, and exclusive of, newline
 func getUserInput(prompt string) (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print(prompt)
@@ -136,7 +136,7 @@ func getUserInput(prompt string) (string, error) {
 	return userInput, err
 }
 
-// Modifies or adds to the existing config if it exists, otherwise creates a new one
+// createContext: Modifies or adds to the existing config if it exists, otherwise creates a new one
 func createContext(existingConfig *common.CLIConfig, inputUrl string, contextName string) {
 	createContext := common.Context{URL: inputUrl}
 	if len(existingConfig.Contexts) == 0 {
