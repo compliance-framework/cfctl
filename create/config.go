@@ -11,19 +11,23 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type CreateConfig struct {
+	Context string
+}
+
+var CreateConfigVar CreateConfig
+
 // Create context given by argument with user input
 func AddContext(cmd *cobra.Command, args []string) {
 	var ConfigFileContents common.CLIConfig
 
 	defaultUrl := "http://localhost:8080/api"
-	contextName := args[0]
 
 	configFile, err := common.GetConfigFilePath()
 	if err != nil {
 		os.Exit(1)
 	}
 
-	fmt.Printf("File path: %v\n", configFile)
 	// Create file if doesn't exist
 	f, err := os.OpenFile(configFile, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
@@ -39,7 +43,6 @@ func AddContext(cmd *cobra.Command, args []string) {
 	if err != nil {
 		os.Exit(1)
 	}
-	fmt.Printf("File contents: %v\n", ConfigFileContents)
 
 	ConfigFileContents.Default = GetUserInputDefaultContext(ConfigFileContents.Default)
 
@@ -49,7 +52,7 @@ func AddContext(cmd *cobra.Command, args []string) {
 		inputUrl = defaultUrl
 	}
 
-	ConfigFileContents = CreateContext(ConfigFileContents, inputUrl, contextName)
+	ConfigFileContents = CreateContext(ConfigFileContents, inputUrl, CreateConfigVar.Context)
 
 	d, err := yaml.Marshal(ConfigFileContents)
 	if err != nil {
@@ -61,7 +64,7 @@ func AddContext(cmd *cobra.Command, args []string) {
 	f.Truncate(0)
 	f.Seek(0, 0)
 	f.Write(d)
-	fmt.Printf("Successfully wrote new context for '%v'\n", contextName)
+	fmt.Printf("Successfully wrote new context for '%v'\n", CreateConfigVar.Context)
 }
 
 func GetUserInputDefaultContext(currentDefault string) string {

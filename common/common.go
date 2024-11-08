@@ -123,12 +123,14 @@ func ReadConfigFile() {
 	fileContent, err := os.ReadFile(configFile)
 	if err != nil {
 		fmt.Printf("Error reading config file: %v\n", err)
-		fmt.Printf(`Create a file, here is a simple example which works for development of CF:
+		fmt.Println(`Create a file, or run 'cfctl config create -c [context]'. Here is a simple example which works for development of CF:
 
 default: dev
 contexts:
   dev:
-    url: http://localhost:8080/api`)
+    url: http://localhost:8080/api
+	`)
+		os.Exit(1)
 	}
 
 	err = yaml.Unmarshal(fileContent, &CLIConfigVar)

@@ -25,11 +25,6 @@ func ParseCommand() {
 		},
 	}
 
-	// Now the config file has been read in, apply any global overrides on the command line
-	rootCmd.PersistentFlags().StringVarP(&common.RunConfig.Context, "context", "c", "", "Context to use from config file")
-	rootCmd.PersistentFlags().StringVarP(&common.RunConfig.URL, 	"url", "u", "", "Endpoint URL to send the YAML payloads")
-	rootCmd.PersistentFlags().StringVarP(&common.RunConfig.Output,  "output", "o", "yaml", "Output format (TODO), defaults to json")
-
 	// validate
 	var validateCmd = &cobra.Command{
 		Use:   "validate",
@@ -63,7 +58,7 @@ func ParseCommand() {
 	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Description, "description", "d", "", "Description of Task")
 	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Schedule, 	"schedule", "s", "", "Schedule of Task (cron format)")
 	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.PlanID, 		"plan-id", "p", "", "Plan ID")
-	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Type, 		"type", "y", "action", "Task type (default: action)")
+	createTaskCmd.Flags().StringVarP(&create.CreateTaskVar.Type,   		"type", "y", "action", "Task type (default: action)")
 
 	var createActivityCmd = &cobra.Command{
 		Use:   "activity",
@@ -71,8 +66,8 @@ func ParseCommand() {
 		Run:   create.RunCreateActivity,
 	}
 	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.FilePath, "file", "f", "", "YAML file to process configuration of plugin")
-	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.TaskID, 	 "task-id", "t", "", "Title of Task")
-	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.PlanID, 	 "plan-id", "p", "", "Description of Task")
+	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.TaskID,   "task-id", "t", "", "Title of Task")
+	createActivityCmd.Flags().StringVarP(&create.CreateActivityVar.PlanID,   "plan-id", "p", "", "Description of Task")
 	createCmd.MarkFlagRequired("file")
 	createCmd.MarkFlagRequired("task-id")
 	createCmd.MarkFlagRequired("plan-id")
@@ -90,6 +85,14 @@ func ParseCommand() {
 		Run:   activate.RunActivatePlan,
 	}
 
+	// Apply any global overrides on the command line to non-config commands
+	nonConfigCommands := []cobra.Command{*activateCmd, *createCmd, *validateCmd}
+	for _, command := range nonConfigCommands {
+		command.PersistentFlags().StringVarP(&common.RunConfig.Context, "context", "c", "", "Context to use from config file")
+		command.PersistentFlags().StringVarP(&common.RunConfig.URL, 	"url", "u", "", "Endpoint URL to send the YAML payloads")
+		command.PersistentFlags().StringVarP(&common.RunConfig.Output,  "output", "o", "yaml", "Output format (TODO), defaults to json")
+	}
+
 	// config
 
 	var configCmd = &cobra.Command{
@@ -100,10 +103,10 @@ func ParseCommand() {
 	var createConfigContextCmd = &cobra.Command{
 		Use:   "create",
 		Short: "Set config values",
-		Args:  cobra.ExactArgs(1),
 		Run:   create.AddContext,
 	}
-
+	createConfigContextCmd.Flags().StringVarP(&create.CreateConfigVar.Context, "context-name", "c", "", "Context name to create a configuration for.")
+	createConfigContextCmd.MarkFlagRequired("context-name")
 	// Add subcommands to the create command
 	createCmd.AddCommand(createPlanCmd, createTaskCmd, createActivityCmd)
 	activateCmd.AddCommand(activatePlanCmd)
