@@ -17,7 +17,7 @@ func TestCreateContextFromEmpty(t *testing.T) {
 
 	expectedConfig := setupExpectedConfig()
 
-	configWithContext := CreateContext(testConfig, "test", "test")
+	configWithContext := createContext(testConfig, "test", "test")
 
 	if configWithContext.Contexts["test"] != expectedConfig.Contexts["test"] {
 		t.Errorf("unexpected result: got %v but expected %v", configWithContext.Contexts["test"], expectedConfig.Contexts["test"])
@@ -31,7 +31,7 @@ func TestCreateContextFromExisting(t *testing.T) {
 
 	expectedConfig := setupExpectedConfig()
 
-	configWithContext := CreateContext(testConfig, "test", "test")
+	configWithContext := createContext(testConfig, "test", "test")
 
 	if configWithContext.Contexts["test"] != expectedConfig.Contexts["test"] {
 		t.Errorf("unexpected result: got %v but expected %v", configWithContext.Contexts["test"], expectedConfig.Contexts["test"])
