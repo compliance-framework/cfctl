@@ -1,38 +1,38 @@
 package create
 
 import (
-	"io/ioutil"
 	"fmt"
 	"os"
 
+	"cfctl/common"
+
+	"github.com/compliance-framework/configuration-service/domain"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
-	"github.com/compliance-framework/configuration-service/domain"
-	"cfctl/common"
 )
 
 type CreateTask struct {
-	Title       string             `yaml:"title"`
-	Description string             `yaml:"description"`
-	Type        string             `yaml:"type"`
-	Schedule    string             `yaml:"schedule"`
-	PlanID      string             `yaml:"plan-id"`
-	FilePath    string            `yaml:"file-path"`
+	Title       string `yaml:"title"`
+	Description string `yaml:"description"`
+	Type        string `yaml:"type"`
+	Schedule    string `yaml:"schedule"`
+	PlanID      string `yaml:"plan-id"`
+	FilePath    string `yaml:"file-path"`
 }
 
-var CreateTaskVar     CreateTask
+var CreateTaskVar CreateTask
 
 func RunCreateTask(cmd *cobra.Command, args []string) {
 	var yamlData []byte
-	var err      error
+	var err error
 	var response string
 
-	fileName        := common.RunConfig.FilePath
-	taskTitle       := CreateTaskVar.Title
+	fileName := common.RunConfig.FilePath
+	taskTitle := CreateTaskVar.Title
 	taskDescription := CreateTaskVar.Description
-	taskSchedule    := CreateTaskVar.Schedule
-	taskPlanID      := CreateTaskVar.PlanID
-	taskType        := CreateTaskVar.Type
+	taskSchedule := CreateTaskVar.Schedule
+	taskPlanID := CreateTaskVar.PlanID
+	taskType := CreateTaskVar.Type
 
 	// Check variables are correct
 	// one of title or filepath must be non-empty, and one of them must be empty
@@ -46,7 +46,7 @@ func RunCreateTask(cmd *cobra.Command, args []string) {
 	// Process the command
 	task := domain.Task{}
 	if fileName != "" {
-		yamlData, err = ioutil.ReadFile(common.RunConfig.FilePath)
+		yamlData, err = os.ReadFile(common.RunConfig.FilePath)
 		if err != nil {
 			fmt.Printf("error reading file: %v", err)
 			os.Exit(1)
@@ -58,10 +58,10 @@ func RunCreateTask(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 	} else if taskTitle != "" {
-		task.Title       = taskTitle
+		task.Title = taskTitle
 		task.Description = taskDescription
-		task.Schedule    = taskSchedule
-		task.Type        = domain.TaskType(taskType)
+		task.Schedule = taskSchedule
+		task.Type = domain.TaskType(taskType)
 		yamlData, err = yaml.Marshal(&task)
 		if err != nil {
 			fmt.Printf("Error marshalling to YAML: %v\n", err)
@@ -71,11 +71,10 @@ func RunCreateTask(cmd *cobra.Command, args []string) {
 		fmt.Printf("RunCreateTask should not get here")
 		os.Exit(1)
 	}
-	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL + "plan/" + taskPlanID + "/tasks")
+	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL+"plan/"+taskPlanID+"/tasks")
 	if err != nil {
 		fmt.Printf("Error posting: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf(response)
+	fmt.Print(response)
 }
-
