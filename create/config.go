@@ -45,15 +45,15 @@ func AddContext(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	ConfigFileContents.Default = GetUserInputDefaultContext(ConfigFileContents.Default)
+	ConfigFileContents.Default = getUserInputDefaultContext(ConfigFileContents.Default)
 
-	inputUrl, err := GetUserInput("Enter url: ")
+	inputUrl, err := getUserInput("Enter url: ")
 	if inputUrl == "" || err != nil {
 		fmt.Printf("Using default URL %v\n", defaultUrl)
 		inputUrl = defaultUrl
 	}
 
-	ConfigFileContents = CreateContext(ConfigFileContents, inputUrl, CreateConfigVar.Context)
+	ConfigFileContents = createContext(ConfigFileContents, inputUrl, CreateConfigVar.Context)
 
 	d, err := yaml.Marshal(ConfigFileContents)
 	if err != nil {
@@ -108,14 +108,14 @@ func GetContext(cmd *cobra.Command, args []string) {
 
 }
 
-func GetUserInputDefaultContext(currentDefault string) string {
+func getUserInputDefaultContext(currentDefault string) string {
 	var display string
 	if currentDefault == "" {
 		display = "None"
 	} else {
 		display = currentDefault
 	}
-	inputContext, err := GetUserInput(fmt.Sprintf("Enter default context [%v]: ", display))
+	inputContext, err := getUserInput(fmt.Sprintf("Enter default context [%v]: ", display))
 	if inputContext == "" || err != nil {
 		if currentDefault == "" {
 			fmt.Printf("Default context must be given on new config file creation.\n")
@@ -128,7 +128,7 @@ func GetUserInputDefaultContext(currentDefault string) string {
 }
 
 // Prompts user for input and gets value delimited, and exclusive of, newline
-func GetUserInput(prompt string) (string, error) {
+func getUserInput(prompt string) (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print(prompt)
 	userInput, err := reader.ReadString('\n')
@@ -137,7 +137,7 @@ func GetUserInput(prompt string) (string, error) {
 }
 
 // Modifies or adds to the existing config if it exists, otherwise creates a new one
-func CreateContext(existingConfig common.CLIConfig, inputUrl string, contextName string) common.CLIConfig {
+func createContext(existingConfig common.CLIConfig, inputUrl string, contextName string) common.CLIConfig {
 	createContext := common.Context{URL: inputUrl}
 	if len(existingConfig.Contexts) == 0 {
 		fmt.Println("No context found - creating new.")
