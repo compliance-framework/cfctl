@@ -68,7 +68,7 @@ func AddContext(cmd *cobra.Command, args []string) {
 	fmt.Printf("Successfully wrote new context for '%v'\n", CreateConfigVar.Context)
 }
 
-// Output the config, by context if specified
+// GetContext: outputs the config, by context if specified
 func GetContext(cmd *cobra.Command, args []string) {
 
 	configFile, err := common.GetConfigFilePath()
