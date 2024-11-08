@@ -2,13 +2,14 @@ package create
 
 import (
 	"fmt"
-	"io/ioutil"
+
 	"os"
 
+	"cfctl/common"
+
+	"github.com/compliance-framework/configuration-service/domain"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
-	"github.com/compliance-framework/configuration-service/domain"
-	"cfctl/common"
 )
 
 type CreatePlan struct {
@@ -16,14 +17,14 @@ type CreatePlan struct {
 	FilePath string `yaml:"file-path"`
 }
 
-var CreatePlanVar     CreatePlan
+var CreatePlanVar CreatePlan
 
 func RunCreatePlan(cmd *cobra.Command, args []string) {
 	var yamlData []byte
-	var err      error
+	var err error
 	var response string
 
-	fileName  := CreatePlanVar.FilePath
+	fileName := CreatePlanVar.FilePath
 	planTitle := CreatePlanVar.Title
 
 	// Check variables are correct
@@ -39,7 +40,7 @@ func RunCreatePlan(cmd *cobra.Command, args []string) {
 	// Process the command
 	plan := domain.Plan{}
 	if fileName != "" {
-		yamlData, err = ioutil.ReadFile(fileName)
+		yamlData, err = os.ReadFile(fileName)
 		if err != nil {
 			fmt.Printf("error reading file: %v", err)
 			os.Exit(1)
@@ -58,13 +59,13 @@ func RunCreatePlan(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 	} else {
-		fmt.Printf("RunCreatePlan should not get here")
+		fmt.Print("RunCreatePlan should not get here")
 		os.Exit(1)
 	}
-	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL + "plan")
+	response, err = common.PostYAMLDocument(string(yamlData), common.CurrentContext.URL+"plan")
 	if err != nil {
 		fmt.Printf("Error posting: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf(response)
+	fmt.Print(response)
 }
